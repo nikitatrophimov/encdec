@@ -1,4 +1,4 @@
-#ifndef REORDER_ENCRYPTOR_H
+﻿#ifndef REORDER_ENCRYPTOR_H
 #define REORDER_ENCRYPTOR_H
 
 #include <boost/lexical_cast.hpp>
@@ -7,11 +7,16 @@
 #include <set>
 #include <string>
 
+// Класс, реализующий алгоритм перестановки
 class reorder_encryptor
 {
 public:
+  // Функция зашифровки данных
   std::string encrypt(const std::string& input_str, const std::string& key)
   {
+    // - Пробегаемся по каждому из "блоков" входной строки (длина блока равна длине ключа)
+    // - На каждой итерации пробегаемся по всем символам ключа и расставляем
+    // символы в соответствии с цифрами, указанными в ключе
     std::string res;
 
     for (
@@ -30,6 +35,7 @@ public:
     return res;
   }
 
+  // Функция генерации случайного ключа
   std::string generate_key(int key_size)
   {
     std::srand(std::time(0));
@@ -51,7 +57,8 @@ public:
 
     return key;
   }
-
+  
+  // Функция определения длины оптимального ключа для данного алгоритма
   int calculate_key_size(const std::string& input_str)
   {
     for (int i = 10; i != 0; --i)

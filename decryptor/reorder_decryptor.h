@@ -1,4 +1,4 @@
-#ifndef REORDER_DECRYPTOR_H
+﻿#ifndef REORDER_DECRYPTOR_H
 #define REORDER_DECRYPTOR_H
 
 #include <boost/lexical_cast.hpp>
@@ -7,11 +7,16 @@
 #include <set>
 #include <string>
 
+// Класс, реализующий алгоритм перестановки
 class reorder_decryptor
 {
 public:
+  // Функция расшифровки данных
   std::string decrypt(const std::string& input_str, const std::string& key)
   {
+    // - Пробегаемся по каждому из "блоков" входной строки (длина блока равна длине ключа)
+    // - На каждой итерации пробегаемся по всем символам ключа и расставляем
+    // символы в соответствии с цифрами, указанными в ключе
     std::string res;
 
     for (

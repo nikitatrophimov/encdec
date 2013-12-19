@@ -1,4 +1,4 @@
-#ifndef MAP_DECRYPTOR_H
+﻿#ifndef MAP_DECRYPTOR_H
 #define MAP_DECRYPTOR_H
 
 #include <boost/multi_index_container.hpp>
@@ -7,6 +7,8 @@
 
 #include <string>
 
+// Структура, содержащая информацию по поводу "маппинга" символов
+// согласно некоторому заранее заданному словарю
 struct mapping
 {
   mapping(
@@ -20,6 +22,7 @@ struct mapping
   char mapped;
 };
 
+// Вспомогательные структуры для использования объектов структуры mapping в boost::multi_index_container
 struct original {};
 struct mapped {};
 
@@ -38,11 +41,13 @@ typedef boost::multi_index_container<
 typedef boost::multi_index::index<mapping_set_t, original>::type mapping_set_ordered_by_original_index_t;
 typedef boost::multi_index::index<mapping_set_t, mapped>::type mapping_set_ordered_by_mapped_index_t;
 
+// Класс, реализующий алгоритм "маппинга"
 class map_decryptor
 {
 public:
   map_decryptor()
   {
+    // Создаём словарь
     _mapping.insert(mapping('a', 'z'));
     _mapping.insert(mapping('b', 'y'));
     _mapping.insert(mapping('c', 'x'));
@@ -94,8 +99,12 @@ public:
     _mapping.insert(mapping(' ', '!'));
   }
 
+  // Функция расшифровки данных
   std::string decrypt(const std::string& input_str)
   {
+    // Пробегаемся по каждому из символов входной строки
+    // и ищем соответствие им в заранее созданном словаре
+    // Если нашли, то заменяем его. Если нет, то оставляем его, как есть
     std::string res;
     for (char cur_input_char : input_str)
     {
@@ -115,7 +124,7 @@ public:
   }
 
 private:
-  mapping_set_t _mapping;
+  mapping_set_t _mapping; // Словарь
 };
 
 #endif // !MAP_DECRYPTOR_H

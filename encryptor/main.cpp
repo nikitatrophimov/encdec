@@ -1,4 +1,4 @@
-#include "map_encryptor.h"
+﻿#include "map_encryptor.h"
 #include "reorder_encryptor.h"
 #include "xor_encryptor.h"
 
@@ -11,10 +11,12 @@
 #include <iterator>
 #include <string>
 
+// Названия методов шифрования
 const std::string XOR_ENCYPTION_METHOD_NAME = "xor";
 const std::string MAP_ENCYPTION_METHOD_NAME = "map";
 const std::string REORDER_ENCYPTION_METHOD_NAME = "reorder";
 
+// Функция парсинга аргументов командной строки
 boost::program_options::variables_map parse_command_line_arguments(int argc, char* argv[])
 {
   boost::program_options::options_description desc("Allowed options");
@@ -68,6 +70,7 @@ boost::program_options::variables_map parse_command_line_arguments(int argc, cha
   return vm;
 }
 
+// Функция получения содержимого файла
 std::string get_file_content(const boost::filesystem::path& file_path)
 {
   std::string file_content;
@@ -86,8 +89,10 @@ std::string get_file_content(const boost::filesystem::path& file_path)
 
 int main(int argc, char* argv[])
 {
+  // Парсим аргументы командной строки
   const boost::program_options::variables_map& command_line_arguments = parse_command_line_arguments(argc, argv);
 
+  // Получаем содержимое входного файла, который необходимо зашифровать
   const std::string& input_file_content = get_file_content(
     command_line_arguments["input-file"].as<std::string>()
   );
@@ -97,9 +102,11 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  // Получаем метод шифрования и ключ из аргументов командной строки
   const std::string& encyption_method = command_line_arguments["algorithm"].as<std::string>();
   const std::string& key = command_line_arguments["key"].as<std::string>();
 
+  // Создаём выходной файл для шифрованных данных
   boost::filesystem::ofstream output_file(command_line_arguments["output-file"].as<std::string>());
   if (!output_file)
   {
@@ -107,6 +114,11 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  // В зависимости от того или иного метода шифрования, который выбрал пользователь,
+  // создаём объект соответствующего класса и зашифровываем данные
+  // В начало выходного файла добавляем букву, обозначающую то, какой именно
+  // алгоритм шифрования использовался для зашифровки данного текста, чтобы дешифровщик
+  // мог автоматически определить алгоритм
   if (encyption_method == XOR_ENCYPTION_METHOD_NAME)
   {
     xor_encryptor enc;
@@ -130,7 +142,10 @@ int main(int argc, char* argv[])
   {
     reorder_encryptor enc;
 
+    // В случае перестановки мы генерируем ключ самостоятельно
     int key_size = enc.calculate_key_size(input_file_content);
+    // Если размер ключа слишком маленький, то завершаем приложение с кодом ошибки,
+    // иначе дешифровать текст будет не так уж и сложно
     if (key_size < 3)
     {
       std::cerr << "Unable to encrypt this text. Please use another method \n";
