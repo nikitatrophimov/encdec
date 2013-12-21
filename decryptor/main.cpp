@@ -70,7 +70,7 @@ std::string get_file_content(const boost::filesystem::path& file_path)
     file_content.append(
       (std::istreambuf_iterator<char>(f))
       , std::istreambuf_iterator<char>()
-      );
+    );
   }
 
   return file_content;
@@ -128,7 +128,11 @@ int main(int argc, char* argv[])
   std::cout << part_of_file_content_to_encrypt << '\n';
 
   // Получаем ключ из аргументов командной строки
-  const std::string& key = command_line_arguments["key"].as<std::string>();
+  std::string key;
+  if (command_line_arguments.count("key"))
+  {
+    key = command_line_arguments["key"].as<std::string>();
+  }
 
   // Создаём выходной файл для расшифрованных данных
   boost::filesystem::ofstream output_file(command_line_arguments["output-file"].as<std::string>());

@@ -60,7 +60,7 @@ boost::program_options::variables_map parse_command_line_arguments(int argc, cha
     || !vm.count("input-file")
     || !vm.count("output-file")
     || !vm.count("algorithm")
-    || (vm["algorithm"].as<std::string>() != XOR_ENCYPTION_METHOD_NAME && !vm.count("key"))
+    || (vm["algorithm"].as<std::string>() == XOR_ENCYPTION_METHOD_NAME && !vm.count("key"))
   )
   {
     std::cout << desc << '\n';
@@ -104,7 +104,6 @@ int main(int argc, char* argv[])
 
   // Получаем метод шифрования и ключ из аргументов командной строки
   const std::string& encyption_method = command_line_arguments["algorithm"].as<std::string>();
-  const std::string& key = command_line_arguments["key"].as<std::string>();
 
   // Создаём выходной файл для шифрованных данных
   boost::filesystem::ofstream output_file(command_line_arguments["output-file"].as<std::string>());
@@ -121,6 +120,8 @@ int main(int argc, char* argv[])
   // мог автоматически определить алгоритм
   if (encyption_method == XOR_ENCYPTION_METHOD_NAME)
   {
+    const std::string& key = command_line_arguments["key"].as<std::string>();
+
     xor_encryptor enc;
     const std::string& encrypted_str = enc.encrypt(
       input_file_content
@@ -151,7 +152,7 @@ int main(int argc, char* argv[])
       std::cerr << "Unable to encrypt this text. Please use another method \n";
       return EXIT_FAILURE;
     }
-    const std::string key = enc.generate_key(key_size);
+    const std::string& key = enc.generate_key(key_size);
     std::cout << "Key: " << key << '\n';
 
     const std::string& encrypted_str = enc.encrypt(

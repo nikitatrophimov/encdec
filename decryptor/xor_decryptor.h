@@ -14,9 +14,24 @@ public:
     // и применяем к ним XOR с текущим символом ключа
     std::string res;
     std::string::size_type cur_key_index = 0;
+    bool need_to_convert_next_char = true;
     for (char cur_input_char : input_str)
     {
-      res += cur_input_char ^ key[cur_key_index];
+      if (cur_input_char == ':')
+      {
+        need_to_convert_next_char = false;
+        continue;
+      }
+
+      if (!need_to_convert_next_char)
+      {
+        res += cur_input_char;
+        need_to_convert_next_char = true;
+      }
+      else
+      {
+        res += cur_input_char ^ key[cur_key_index];
+      }
 
       if (++cur_key_index == key.size())
       {

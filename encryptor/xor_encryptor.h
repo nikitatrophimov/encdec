@@ -16,7 +16,16 @@ public:
     std::string::size_type cur_key_index = 0;
     for (char cur_input_char : input_str)
     {
-      res += cur_input_char ^ key[cur_key_index];
+      char encrypted_char = cur_input_char ^ key[cur_key_index];
+      if (encrypted_char == char(26))
+      {
+        res += ':';
+        res += cur_input_char;
+      }
+      else
+      {
+        res += encrypted_char;
+      }
 
       if (++cur_key_index == key.size())
       {
