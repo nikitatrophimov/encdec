@@ -2,13 +2,11 @@
 #include "reorder_decryptor.h"
 #include "xor_decryptor.h"
 
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/program_options.hpp>
-
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <string>
 
 // Названия методов шифрования
@@ -17,54 +15,40 @@ const std::string MAP_ENCYPTION_METHOD_NAME = "map";
 const std::string REORDER_ENCYPTION_METHOD_NAME = "reorder";
 
 // Функция парсинга аргументов командной строки
-boost::program_options::variables_map parse_command_line_arguments(int argc, char* argv[])
+std::map<std::string, std::string> parse_command_line_arguments(int argc, char* argv[])
 {
-  boost::program_options::options_description desc("Allowed options");
-  desc.add_options()
-  (
-    "help,h"
-    , "produce help message"
-  )
-  (
-    "input-file,i"
-    , boost::program_options::value<std::string>()
-    , "[REQUIRED] set input file"
-  )
-  (
-    "output-file,o"
-    , boost::program_options::value<std::string>()
-    , "[REQUIRED] set output file"
-  )
-  (
-    "key,k"
-    , boost::program_options::value<std::string>()
-    , ("set key (for " + XOR_ENCYPTION_METHOD_NAME
-        + " method only"
-      ).c_str()
-  );
+  std::map<std::string, std::string> command_line_arguments;
 
-  boost::program_options::variables_map vm;
-  boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
-  boost::program_options::notify(vm);
-
-  if (vm.count("help")
-    || !vm.count("input-file")
-    || !vm.count("output-file")
+  if (argc == 1
+    || (argc == 2 && argv[1] == "--help")
   )
   {
-    std::cout << desc << '\n';
-    std::exit(EXIT_FAILURE);
+    std::cout << "Usage: decryptor input_file output_file key \n";
+    return command_line_arguments;
   }
 
-  return vm;
+  if (argc < 3)
+  {
+    std::cout << "Usage: decryptor input_file output_file key \n";
+    return command_line_arguments;
+  }
+
+  command_line_arguments["input-file"] = argv[1];
+  command_line_arguments["output-file"] = argv[2];
+  if (argc == 4)
+  {
+    command_line_arguments["key"] = argv[3];
+  }
+
+  return command_line_arguments;
 }
 
 // Функция получения содержимого файла
-std::string get_file_content(const boost::filesystem::path& file_path)
+std::string get_file_content(const std::string& file_path)
 {
   std::string file_content;
 
-  boost::filesystem::ifstream f(file_path);
+  std::ifstream f(file_path);
   if (f)
   {
     file_content.append(
@@ -103,11 +87,15 @@ std::string get_encryption_method(const std::string& input_file_content)
 int main(int argc, char* argv[])
 {
   // Парсим аргументы командной строки
-  const boost::program_options::variables_map& command_line_arguments = parse_command_line_arguments(argc, argv);
+  auto command_line_arguments = parse_command_line_arguments(argc, argv);
+  if (command_line_arguments.empty())
+  {
+    return EXIT_SUCCESS;
+  }
 
   // Получаем содержимое входного файла, который необходимо расшифровать
   const std::string& input_file_content = get_file_content(
-    command_line_arguments["input-file"].as<std::string>()
+    command_line_arguments["input-file"]
   );
   if (input_file_content.empty())
   {
@@ -129,13 +117,13 @@ int main(int argc, char* argv[])
 
   // Получаем ключ из аргументов командной строки
   std::string key;
-  if (command_line_arguments.count("key"))
+  if (argc == 4)
   {
-    key = command_line_arguments["key"].as<std::string>();
+    key = command_line_arguments["key"];
   }
 
   // Создаём выходной файл для расшифрованных данных
-  boost::filesystem::ofstream output_file(command_line_arguments["output-file"].as<std::string>());
+  std::ofstream output_file(command_line_arguments["output-file"]);
   if (!output_file)
   {
     std::cerr << "Unable to create output file \n";
@@ -146,6 +134,12 @@ int main(int argc, char* argv[])
   // создаём объект соответствующего класса и расшифровываем данные
   if (encyption_method == XOR_ENCYPTION_METHOD_NAME)
   {
+    if (key.empty())
+    {
+      std::cerr << "You need to enter key for this method \n";
+      return EXIT_FAILURE;
+    }
+
     xor_decryptor dec;
     const std::string& decrypted_str = dec.decrypt(
       part_of_file_content_to_encrypt
@@ -165,6 +159,12 @@ int main(int argc, char* argv[])
   }
   else if (encyption_method == REORDER_ENCYPTION_METHOD_NAME)
   {
+    if (key.empty())
+    {
+      std::cerr << "You need to enter key for this method \n";
+      return EXIT_FAILURE;
+    }
+
     reorder_decryptor dec;
     const std::string& decrypted_str = dec.decrypt(
       part_of_file_content_to_encrypt

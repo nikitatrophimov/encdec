@@ -1,8 +1,6 @@
 ﻿#ifndef REORDER_ENCRYPTOR_H
 #define REORDER_ENCRYPTOR_H
 
-#include <boost/lexical_cast.hpp>
-
 #include <ctime>
 #include <set>
 #include <string>
@@ -28,7 +26,7 @@ public:
       const std::string& cur_substr = input_str.substr(i, key.size());
       for (const char c : key)
       {
-        res += cur_substr[boost::lexical_cast<int>(c)];
+        res += c - '0';
       }
     }
 
@@ -47,7 +45,7 @@ public:
       const auto& res = helper.insert(value);
       if (res.second)
       {
-        key += boost::lexical_cast<char>(value);
+        key += (char)(((int)'0') + value);
       }
       if (helper.size() == key_size)
       {

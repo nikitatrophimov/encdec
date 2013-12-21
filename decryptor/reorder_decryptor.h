@@ -1,8 +1,6 @@
 ﻿#ifndef REORDER_DECRYPTOR_H
 #define REORDER_DECRYPTOR_H
 
-#include <boost/lexical_cast.hpp>
-
 #include <ctime>
 #include <set>
 #include <string>
@@ -28,7 +26,7 @@ public:
       const std::string& cur_substr = input_str.substr(i, key.size());
       for (int i = 0; i < key.size(); ++i)
       {
-        const auto& char_index = key.find(boost::lexical_cast<char>(i));
+        const auto& char_index = key.find((char)(((int)'0') + i));
         res += cur_substr[char_index];
       }
     }
