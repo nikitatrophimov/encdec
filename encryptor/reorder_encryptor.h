@@ -26,7 +26,7 @@ public:
       const std::string& cur_substr = input_str.substr(i, key.size());
       for (const char c : key)
       {
-        res += c - '0';
+        res += cur_substr[c - '0'];
       }
     }
 
